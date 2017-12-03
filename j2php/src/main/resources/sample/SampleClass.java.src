@@ -1,0 +1,80 @@
+package hello;
+
+import foo.Bar;
+import foo.Baz;
+
+public abstract class SampleClass {
+
+	public static SampleClass lastInstance;
+	
+	private int num1, num2;
+	
+	private int z;
+	
+	{
+		z = num1 - num2;
+	}
+	
+	{
+		z += 7;
+	}
+	
+	static {
+		new SampleClass(1, 2);
+	}
+	
+	public SampleClass(int num1, int num2) {
+		this.num1 = num1;
+		this.num2 = num2;
+		lastInstance = this;
+	}
+	
+	public int getSum() {
+		return num1 + num2;
+	}
+	
+	public int getMul() {
+		return num1 * num2;
+	}
+	
+	public boolean check(int num1, int num2) {
+		return (num1 == this.num1 && num2 == this.num2);
+	}
+	
+	public int methodWithComplexBody(int input) {
+		int result = 0;
+		int x = 4;
+		{
+			int a = 5;
+			a--;
+			result += a;
+			result *= a;
+			result -= input;
+			{
+				int b = 2;
+				b++;
+				result += b * 3;
+			}
+			{
+				int b = 3;
+				b--;
+				result *= b;
+				result += input;
+			}
+		}
+		{
+			int a = 2;
+			int b = 3;
+			result += a * b * input;
+			for (int i = 0; i < 10; i++) {
+				result++;
+			}
+		}
+		int a = 4;
+		result += a + 1 - ((a + x) * 2);
+		return result;
+	}
+	
+	public abstract void someAbstractMethod(boolean bar);
+	
+}
