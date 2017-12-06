@@ -18,6 +18,7 @@ import com.github.javaparser.ast.body.InitializerDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
 
 public class VerySimplePhpTranslator {
     
@@ -62,8 +63,24 @@ public class VerySimplePhpTranslator {
             ClassOrInterfaceDeclaration clazz = (ClassOrInterfaceDeclaration)compilationUnit.getTypes().get(0);
             
             className = clazz.getNameAsString();
+
+            resultBuilder.append("class " + className + "");
+
+            {
+            	NodeList<ClassOrInterfaceType> extendedTypes = clazz.getExtendedTypes();
+            	for (ClassOrInterfaceType extendedType: extendedTypes) {
+            		System.out.println(extendedType.getNameAsString() + ": " + extendedType.isUnknownType());
+            	}
+            }
+
+            {
+            	NodeList<ClassOrInterfaceType> implementedTypes = clazz.getImplementedTypes();
+            	for (ClassOrInterfaceType implementedType: implementedTypes) {
+            		System.out.println(implementedType.getNameAsString() + ": " + implementedType.isUnknownType());
+            	}
+            }
             
-            resultBuilder.append("class " + className + " {\n\n");
+            resultBuilder.append(" {\n\n");
             
             {
                 List<FieldDeclaration> fields = clazz.getFields();

@@ -3,13 +3,18 @@ package hello;
 import foo.Bar;
 import foo.Baz;
 
-public abstract class SampleClass {
-
+public abstract class SampleClass extends SomeUnknownClass implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
+	
+	
     public static SampleClass lastInstance;
+    
     
     private int num1, num2;
     
     private int z;
+    
     
     {
         z = num1 - num2;
