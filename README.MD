@@ -5,7 +5,7 @@ This transcompiler does not try to emulate the JVM,
 but produces a human friendly output close to the original Java source
 (unlike to LLVM based solutions).
 
-It supports any Java versions up to Java 9 as source, and produces PHP 5.6 code.
+It supports any Java versions up to Java 9 as source, and produces PHP 7 code.
 
 This is an experimental project in its early stage. Do not use in production.
 
