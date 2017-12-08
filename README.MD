@@ -27,6 +27,6 @@ This is an experimental project in its early stage. Do not use in production.
 | Configurable PHP settings | Later | - |
 | Build tool integration | Later | Gradle plugin |
 | Standard lib | Later | - |
-| Advanced concurrency | Not planned | - |
 | Docblocks | Later | - |
+| Advanced concurrency | Not planned | - |
 | ... | ... | ... 
