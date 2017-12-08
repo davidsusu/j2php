@@ -14,8 +14,8 @@ This is an experimental project in its early stage. Do not use in production.
 | Feature | Status | Idea |
 |---------|--------|------|
 | Basic package/class structure | In progress | - |
-| Code blocks, scoping | Soon | Variable postfixes |
-| Expressions, control structures | Soon | - |
+| Expressions, control structures | In progress | - |
+| Code blocks, scoping | In progress | Variable postfixes |
 | Method overloading | Soon | Method postfixes, default variant |
 | Unicode strings | Soon | mb_\* methods |
 | Configurable formatting | Soon | - |
