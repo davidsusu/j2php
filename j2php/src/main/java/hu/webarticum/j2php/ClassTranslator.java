@@ -7,9 +7,9 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 
 public class ClassTranslator {
 
-    private ClassOrInterfaceDeclaration classDeclaration;
+    private final ClassOrInterfaceDeclaration classDeclaration;
     
-    private EmbeddingContext embeddingContext;
+    private final EmbeddingContext embeddingContext;
     
     public ClassTranslator(ClassOrInterfaceDeclaration classDeclaration, EmbeddingContext embeddingContext) {
         this.classDeclaration = classDeclaration;
@@ -71,6 +71,52 @@ public class ClassTranslator {
         }
 
         outputBuilder.append(embeddingContext.indent + "}");
+        
+        
+        
+        
+        
+        
+        
+        /*
+        
+        {
+            List<String> instanceInitializerNames = new ArrayList<String>();
+            {
+                for (BodyDeclaration<?> member: clazz.getMembers()) {
+                    if (member.isInitializerDeclaration()) {
+                        InitializerDeclaration initializer = (InitializerDeclaration)member;
+                        if (initializer.isStatic()) {
+                            String postFix = staticInitializerNames.isEmpty() ? "" : "" + (staticInitializerNames.size() + 1);
+                            String associatedName = "_staticInit" + postFix;
+                            staticInitializerNames.add(associatedName);
+                            resultBuilder.append("    public static " + associatedName + "() {\n        // TODO\n    }\n\n");
+                        } else {
+                            String postFix = instanceInitializerNames.isEmpty() ? "" : "" + (instanceInitializerNames.size() + 1);
+                            String associatedName = "_init" + postFix;
+                            instanceInitializerNames.add(associatedName);
+                            resultBuilder.append("    private " + associatedName + "() {\n        // TODO\n    }\n\n");
+                        }
+                    }
+                }
+            }
+            
+            {
+                List<ConstructorDeclaration> constructors = clazz.getConstructors();
+                for (ConstructorDeclaration constructor: constructors) {
+                    int parameterCount = constructor.getParameters().size();
+                    resultBuilder.append("    // TODO: constructor with " + parameterCount + " parameter(s)\n\n");
+                }
+                if (!constructors.isEmpty()) {
+                    resultBuilder.append("\n");
+                }
+            }
+        }
+            
+        for (String staticInitializedName: staticInitializerNames) {
+            resultBuilder.append("\n" + className + "::" + staticInitializedName + "();\n");
+        }
+        */
     }
     
     @Override

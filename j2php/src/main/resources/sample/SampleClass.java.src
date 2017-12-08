@@ -62,7 +62,9 @@ public class SampleClass extends SampleAbstractClass implements SampleInterface,
             }
             {
                 int b = 3;
-                b--;
+                if (b > 2) {
+                	b--;
+                }
                 result *= b;
                 result += input;
             }
@@ -70,7 +72,15 @@ public class SampleClass extends SampleAbstractClass implements SampleInterface,
         {
             int a = 2;
             int b = 3;
-            result += a * b * input;
+            if (a > 2) {
+            	result += a * b * input;
+            } else if (b < 2) {
+            	result += a * b;
+            } else if (a + b == 2) {
+                result += input;
+            } else {
+                result += 5;
+            }
             for (int i = 0; i < 10; i++) {
                 result++;
             }
