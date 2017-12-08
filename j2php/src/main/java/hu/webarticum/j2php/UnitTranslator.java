@@ -20,17 +20,48 @@ import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 
-public class VerySimplePhpTranslator {
+public class UnitTranslator {
+
+    private Unit unit;
     
-    private CompilationUnit compilationUnit;
+    private FormattingSettings formattingSettings;
+
+    private TypeMap typeMap;
+
+    public UnitTranslator(Unit unit) {
+        this(unit, new FormattingSettings());
+    }
+
+    public UnitTranslator(Unit unit, FormattingSettings formattingSettings) {
+        this(unit, formattingSettings, null);
+    }
+
+    public UnitTranslator(Unit unit, TypeMap typeMap) {
+        this(unit, new FormattingSettings(), typeMap);
+    }
     
-    public VerySimplePhpTranslator(CompilationUnit compilationUnit) {
-        this.compilationUnit = compilationUnit;
+    public UnitTranslator(Unit unit, FormattingSettings formattingSettings, TypeMap typeMap) {
+        this.unit = unit;
+        this.formattingSettings = formattingSettings;
+        this.typeMap = typeMap;
     }
     
     @Override
     public String toString() {
         StringBuilder resultBuilder = new StringBuilder();
+        
+        CompilationUnit compilationUnit = unit.getCompilationUnit();
+        EmbeddingContext embeddingContext = new EmbeddingContext(formattingSettings, "");
+        ClassOrInterfaceDeclaration classDeclaration = (ClassOrInterfaceDeclaration)compilationUnit.getType(0);
+        ClassTranslator classTranslator = new ClassTranslator(classDeclaration, embeddingContext);
+        classTranslator.toString(resultBuilder);
+        
+        if (true) return resultBuilder.toString();
+        
+        
+        
+        
+        // very simple version
         
         resultBuilder.append("<?php\n\n");
         
@@ -69,14 +100,16 @@ public class VerySimplePhpTranslator {
             {
                 NodeList<ClassOrInterfaceType> extendedTypes = clazz.getExtendedTypes();
                 for (ClassOrInterfaceType extendedType: extendedTypes) {
-                    System.out.println(extendedType.getNameAsString() + ": " + extendedType.isUnknownType());
+                    System.out.println(extendedType.getName().getIdentifier());
+                    // TODO
+                    //System.out.println(typeMap.lookUp(extendedType.getNameAsString()).getName());
                 }
             }
 
             {
                 NodeList<ClassOrInterfaceType> implementedTypes = clazz.getImplementedTypes();
                 for (ClassOrInterfaceType implementedType: implementedTypes) {
-                    System.out.println(implementedType.getNameAsString() + ": " + implementedType.isUnknownType());
+                   // TODO
                 }
             }
             
@@ -184,6 +217,14 @@ public class VerySimplePhpTranslator {
         }
         
         return resultBuilder.toString();
+        
+        
+        
+        
+        
+        
+        
+        
     }
     
 }

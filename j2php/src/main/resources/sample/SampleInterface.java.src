@@ -1,0 +1,7 @@
+package sample;
+
+public interface SampleInterface {
+    
+    public String decorate(String str);
+    
+}

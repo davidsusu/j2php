@@ -1,0 +1,9 @@
+package sample;
+
+public abstract class SampleAbstractClass {
+    
+    public final String HELLO = "Hello";
+    
+    public abstract void virtualMethod(String name);
+    
+}

@@ -11,6 +11,10 @@ public class TypeMap {
     
     private Map<String, Unit> nameUnitMap = new HashMap<String, Unit>();
     
+    public List<Unit> getUnits() {
+        return new ArrayList<Unit>(nameUnitMap.values());
+    }
+    
     public void attach(TypeMap other) {
         attachedTypeMaps.add(other);
     }

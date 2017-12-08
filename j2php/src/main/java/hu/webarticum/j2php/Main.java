@@ -1,18 +1,16 @@
 package hu.webarticum.j2php;
 
-import java.io.InputStream;
-
-import com.github.javaparser.JavaParser;
-import com.github.javaparser.ast.CompilationUnit;
-
 public class Main {
 
     public static void main(String[] args) {
-        InputStream inputStream = Main.class.getResourceAsStream("/sample/SampleClass.java.src");
-        
-        CompilationUnit compilationUnit = JavaParser.parse(inputStream);
-        
-        System.out.println(new VerySimplePhpTranslator(compilationUnit));
+        TypeMap typeMap = new TypeMap();
+        typeMap.load(new Source(Main.class.getResource("/sample/SampleInterface.java.src")));
+        typeMap.load(new Source(Main.class.getResource("/sample/SampleAbstractClass.java.src")));
+        typeMap.load(new Source(Main.class.getResource("/sample/SampleClass.java.src")));
+        for (Unit unit: typeMap.getUnits()) {
+            UnitTranslator unitTranslator = new UnitTranslator(unit, typeMap);
+            System.out.println(unitTranslator + "\n\n================\n\n");
+        }
     }
 
 }

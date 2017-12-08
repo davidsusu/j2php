@@ -1,9 +1,9 @@
-package hello;
+package sample;
 
 import foo.Bar;
 import foo.Baz;
 
-public abstract class SampleClass extends SomeUnknownClass implements Serializable {
+public class SampleClass extends SampleAbstractClass implements SampleInterface, Serializable {
     
     private static final long serialVersionUID = 1L;
     
@@ -80,6 +80,14 @@ public abstract class SampleClass extends SomeUnknownClass implements Serializab
         return result;
     }
     
-    public abstract void someAbstractMethod(boolean bar);
+    @Override
+    public void virtualMethod(String name) {
+        System.out.println(HELLO + ", " + name + "!");
+    }
+    
+    @Override
+    public String decorate(String str) {
+        return "(" + str + ")";
+    }
     
 }
