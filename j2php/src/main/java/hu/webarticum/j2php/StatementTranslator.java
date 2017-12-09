@@ -48,8 +48,8 @@ public class StatementTranslator {
             
             outputBuilder.append("if (");
 
-            Expression expression = ifStatement.getCondition();
-            new ExpressionTranslator(expression, embeddingContext).toString(outputBuilder);
+            Expression conditionExpression = ifStatement.getCondition();
+            new ExpressionTranslator(conditionExpression, embeddingContext).toString(outputBuilder);
             
             outputBuilder.append(") ");
             

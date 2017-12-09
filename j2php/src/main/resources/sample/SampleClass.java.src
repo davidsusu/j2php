@@ -48,7 +48,7 @@ public class SampleClass extends SampleAbstractClass implements SampleInterface,
     
     public int methodWithComplexBody(int input) {
         int result = 0;
-        int x = 4;
+        int x = 0b11;
         {
             int a = 5;
             a--;
@@ -98,6 +98,11 @@ public class SampleClass extends SampleAbstractClass implements SampleInterface,
     @Override
     public String decorate(String str) {
         return "(" + str + ")";
+    }
+    
+    @Override
+    public String toString() {
+        return "num1's value: \"" + num1 + "\"\nnum2's value: \"" + num1 + "\"";
     }
     
 }
