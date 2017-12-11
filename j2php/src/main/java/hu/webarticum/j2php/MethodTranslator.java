@@ -65,7 +65,7 @@ public class MethodTranslator {
     public String toString() {
         StringBuilder resultBuilder = new StringBuilder();
         toString(resultBuilder);
-        return toString();
+        return resultBuilder.toString();
     }
     
 }

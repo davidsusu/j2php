@@ -2,7 +2,12 @@ package hu.webarticum.j2php;
 
 import java.util.Optional;
 
+import com.github.javaparser.ast.ArrayCreationLevel;
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.ArrayAccessExpr;
+import com.github.javaparser.ast.expr.ArrayCreationExpr;
+import com.github.javaparser.ast.expr.ArrayInitializerExpr;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.ConditionalExpr;
@@ -11,6 +16,11 @@ import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
+import com.github.javaparser.ast.type.PrimitiveType;
+import com.github.javaparser.ast.type.Type;
+import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
+import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 
 public class ExpressionTranslator {
     
@@ -37,17 +47,22 @@ public class ExpressionTranslator {
             VariableDeclarationExpr variableDeclarationExpression = expression.asVariableDeclarationExpr();
             
             boolean firstInitializer = true;
-            for (VariableDeclarator variableDeclarator: variableDeclarationExpression.getVariables()) {
+            NodeList<VariableDeclarator> variables = variableDeclarationExpression.getVariables();
+            for (VariableDeclarator variableDeclarator: variables) {
                 Optional<Expression> variableInitializerOptional = variableDeclarator.getInitializer();
+                String variableName = variableDeclarator.getNameAsString(); // XXX
                 if (variableInitializerOptional.isPresent()) {
                     Expression variableInitializerExpression = variableInitializerOptional.get();
                     if (!firstInitializer) {
                         outputBuilder.append(", ");
                     }
-                    String variableName = variableDeclarator.getNameAsString(); // XXX
                     outputBuilder.append("$" + variableName + " = ");
                     new ExpressionTranslator(variableInitializerExpression, embeddingContext).toString(outputBuilder);
                     firstInitializer = false;
+                    
+                // XXX
+                } else if (variables.size() == 1) {
+                    outputBuilder.append("$" + variableName);
                 }
             }
         } else if (expression.isAssignExpr()) {
@@ -90,9 +105,102 @@ public class ExpressionTranslator {
             outputBuilder.append(conditionExpression + " ? " + thenExpression + " : " + elseExpression);
         } else if (expression.isNameExpr()) {
             NameExpr nameExpression = expression.asNameExpr();
-            outputBuilder.append(nameExpression.getAncestorOfType(Object.class).get() + " -> ");
+            
+            outputBuilder.append("$");
+            
+            // XXX incredibly ugly hack
+            try {
+                TypeSolver typeSolver = new CombinedTypeSolver();
+                JavaParserFacade facade = JavaParserFacade.get(typeSolver);
+                facade.getSymbolSolver().solveSymbol(nameExpression.getNameAsString(), nameExpression).getCorrespondingDeclaration();
+            } catch (Exception e) {
+                outputBuilder.append("this->");
+            }
+            
             String variableName = nameExpression.getNameAsString(); // XXX
-            outputBuilder.append("$" + variableName);
+            outputBuilder.append(variableName);
+        } else if (expression.isArrayCreationExpr()) {
+            ArrayCreationExpr arrayCreationExpression = expression.asArrayCreationExpr();
+            Optional<ArrayInitializerExpr> initializerOptional = arrayCreationExpression.getInitializer();
+            
+            if (initializerOptional.isPresent()) {
+                new ExpressionTranslator(initializerOptional.get(), embeddingContext).toString(outputBuilder);
+            } else {
+                int creationLevels = 0;
+                boolean isComplete = true;
+                
+                for (ArrayCreationLevel level: arrayCreationExpression.getLevels()) {
+                    Optional<Expression> dimensionOptional = level.getDimension();
+                    
+                    if (dimensionOptional.isPresent()) {
+                        outputBuilder.append("\\array_fill(0, ");
+                        Expression dimensionExpression = dimensionOptional.get();
+                        new ExpressionTranslator(dimensionExpression, embeddingContext).toString(outputBuilder);
+                        outputBuilder.append(", ");
+                        creationLevels++;
+                    } else {
+                        isComplete = false;
+                        break;
+                    }
+                }
+                
+                
+                if (isComplete) {
+                    Type arrayType = arrayCreationExpression.getElementType();
+                    String valueLiteral;
+                    if (!arrayType.isPrimitiveType()) {
+                        valueLiteral = "null";
+                    } else {
+                        PrimitiveType.Primitive primitive = arrayType.asPrimitiveType().getType();
+                        switch (primitive) {
+                            case BOOLEAN:
+                                valueLiteral = "false";
+                                break;
+                            case CHAR:
+                                valueLiteral = "\"\\0\"";
+                                break;
+                            default:
+                                valueLiteral = "0";
+                        }
+                        
+                    }
+                    outputBuilder.append(valueLiteral);
+                } else {
+                    outputBuilder.append("[]");
+                }
+                for (int i = 0; i < creationLevels; i++) {
+                    outputBuilder.append(")");
+                }
+            }
+        } else if (expression.isArrayInitializerExpr()) {
+            ArrayInitializerExpr arrayInitializerExpression = expression.asArrayInitializerExpr();
+            outputBuilder.append("[\n");
+            for (Expression value: arrayInitializerExpression.getValues()) {
+                EmbeddingContext valueEmbeddingContext = embeddingContext.moreIndent("    ");
+                outputBuilder.append(valueEmbeddingContext.indent);
+                new ExpressionTranslator(value, valueEmbeddingContext).toString(outputBuilder);
+                outputBuilder.append(",\n");
+            }
+            outputBuilder.append(embeddingContext.indent + "]");
+        } else if (expression.isArrayAccessExpr()) {
+            ArrayAccessExpr arrayAccessExpression = expression.asArrayAccessExpr();
+            Expression nameExpression = arrayAccessExpression.getName();
+            boolean isProtected = (
+                nameExpression.isNameExpr() ||
+                nameExpression.isEnclosedExpr() ||
+                nameExpression.isArrayAccessExpr() ||
+                nameExpression.isFieldAccessExpr()
+            );
+            if (!isProtected) {
+                outputBuilder.append("(");
+            }
+            new ExpressionTranslator(nameExpression, embeddingContext).toString(outputBuilder);
+            if (!isProtected) {
+                outputBuilder.append(")");
+            }
+            outputBuilder.append("[");
+            new ExpressionTranslator(arrayAccessExpression.getIndex(), embeddingContext).toString(outputBuilder);
+            outputBuilder.append("]");
         } else {
             // TODO
             outputBuilder.append("/** EXPR (" + expression.getClass().getSimpleName() + ") **/");
@@ -104,7 +212,7 @@ public class ExpressionTranslator {
     public String toString() {
         StringBuilder resultBuilder = new StringBuilder();
         toString(resultBuilder);
-        return toString();
+        return resultBuilder.toString();
     }
     
 }

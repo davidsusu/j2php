@@ -13,6 +13,7 @@ This is an experimental project in its early stage. Do not use in production.
 
 | Feature | Status | Idea |
 |---------|--------|------|
+| Basic concepts, project structure  | In progress | (HierarchicalStringBuilder?) |
 | Basic package/class structure | In progress | - |
 | Expressions, control structures | In progress | - |
 | Code blocks, scoping | In progress | Variable postfixes |
@@ -21,6 +22,7 @@ This is an experimental project in its early stage. Do not use in production.
 | Configurable formatting | Soon | - |
 | Inner types | Later | Reflexion |
 | Default methods | Later | Inherit from a generic JavaObject |
+| Advanced Java8 features | Later | - |
 | Custom behaviors (collections etc.) | Later | ... |
 | Advanced custom (generators etc.) | Later | ... |
 | Basic threading | Later | PThreads |

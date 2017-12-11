@@ -63,7 +63,7 @@ public class SampleClass extends SampleAbstractClass implements SampleInterface,
             {
                 int b = 3;
                 if (b > 2) {
-                	b--;
+                    b--;
                 }
                 result *= b;
                 result += input;
@@ -73,9 +73,9 @@ public class SampleClass extends SampleAbstractClass implements SampleInterface,
             int a = 2;
             int b = 3;
             if (a > 2) {
-            	result += a * b * input;
+                result += a * b * input;
             } else if (b < 2) {
-            	result += a * b;
+                result += a * b;
             } else if (a + b == 2) {
                 result += input;
             } else {
@@ -84,10 +84,79 @@ public class SampleClass extends SampleAbstractClass implements SampleInterface,
             for (int i = 0; i < 10; i++) {
                 result++;
             }
+            switch (result) {
+                case 1:
+                    System.out.println("result is one");
+                    break;
+                case 2:
+                case 3:
+                    System.out.println("result is two or three");
+                    break;
+                default:
+                    System.out.println("result is other");
+            }
         }
         int a = 4;
         result += a + 1 - ((a + x) * 2);
+        while (result % 10 != 3 && result % 35 != 7) {
+            result--;
+        }
+        do {
+            result++;
+        } while (result < 50 * Math.sin(result / 50));
         return result;
+    }
+    
+    public void testArrays() {
+        int[] array1 = new int[] {1, 2, 3, 4, 5};
+        
+        int sum1 = 0;
+        for (int i = 0; i < array1.length; i++) {
+            sum1 += array1[i];
+        }
+        
+        int[] array2 = new int[5];
+        array2[2] = 22;
+        array2[3] = 33;
+        array2[1] = 11;
+        array2[5] = 55;
+        array2[4] = 44;
+        int sum2 = 0;
+        for (int value: array2) {
+            sum2 += array2[i];
+        }
+        
+        int mulOfDiffs = 1;
+        for (int i = 0, j = array2.length - 1; i < array1.length; i++, j--) {
+            mulOfDiffs *= array1[i] - array2[j];
+        }
+        
+        System.out.println(sum1 + " / " + sum2 + " / " + mulOfDiffs);
+        
+        int[][][] multiDimensionalArray = new int[4][3][2];
+        multiDimensionalArray[2][1][0] = 7;
+        
+        int d = 3;
+        int[][][] dynamicMultiDimensionalArray = new int[d - 1][3][d];
+        dynamicIncompleteMultiDimensionalArray[d - 2][2][d - 1] = d * d;
+        
+        int[][][] incompleteMultiDimensionalArray = new int[3][2][];
+        incompleteMultiDimensionalArray[1][0] = new int[] {};
+        
+        int e = 4;
+        int[][][] dynamicIncompleteMultiDimensionalArray = new int[e][e + 3][];
+        
+        int[][][] initializedMultiDimensionalArray = new int[][][] {
+            {
+                {1, 2}, {3, 4}, {5, 6}
+            },
+            {
+                {7, 8}
+            },
+            {
+                {9}
+            }
+        };
     }
     
     @Override

@@ -1,9 +1,7 @@
 package hu.webarticum.j2php;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.expr.LiteralExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 
@@ -21,7 +19,7 @@ public class LiteralTranslator {
     public void toString(StringBuilder outputBuilder) {
         if (literalExpression.isStringLiteralExpr()) {
             StringLiteralExpr stringLiteral = literalExpression.asStringLiteralExpr();
-            outputBuilder.append("{{{ " + stringLiteral.asString() + " }}}");
+            outputBuilder.append("'" + stringLiteral.asString().replaceAll("\\\\|'", "\\\\$0").replaceAll("\\r\\n?|\\n", "' + \"\\\\n\" + '") + "'");
         } else {
             
             // XXX: Java and PHP literals are mostly compatible
@@ -58,7 +56,7 @@ public class LiteralTranslator {
     public String toString() {
         StringBuilder resultBuilder = new StringBuilder();
         toString(resultBuilder);
-        return toString();
+        return resultBuilder.toString();
     }
     
 }

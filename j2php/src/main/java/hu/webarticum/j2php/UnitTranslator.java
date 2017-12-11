@@ -68,7 +68,7 @@ public class UnitTranslator {
         ClassOrInterfaceDeclaration classDeclaration = (ClassOrInterfaceDeclaration)compilationUnit.getType(0);
         ClassTranslator classTranslator = new ClassTranslator(classDeclaration, embeddingContext);
         classTranslator.toString(resultBuilder);
-        
+
         return resultBuilder.toString();
     }
     
