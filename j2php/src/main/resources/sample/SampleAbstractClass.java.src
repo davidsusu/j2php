@@ -4,6 +4,16 @@ public abstract class SampleAbstractClass {
     
     public final String HELLO = "Hello";
     
-    public abstract void virtualMethod(String name);
+    private String defaultName;
+    
+    protected SampleAbstractClass(String defaultName) {
+        this.defaultName = defaultName;
+    }
+    
+    public void hello() {
+        System.out.println("Hello, " + defaultName);
+    }
+    
+    public abstract void virtualHello(String name);
     
 }
