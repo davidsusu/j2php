@@ -70,8 +70,8 @@ public class ClassTranslator {
         outputBuilder.append(innerEmbeddingContext.indent + "\n");
 
         {
-        	// TODO / XXX
-        	
+            // TODO / XXX
+            
             List<FieldDeclaration> fields = classDeclaration.getFields();
             for (FieldDeclaration field: fields) {
                 String visibilityName = "public";
@@ -91,7 +91,7 @@ public class ClassTranslator {
                 outputBuilder.append("    " + visibilityName + (isStatic ? " static" : "") + " $" + String.join(", $", variableNames) + ";\n\n");
             }
             if (!fields.isEmpty()) {
-            	outputBuilder.append("\n");
+                outputBuilder.append("\n");
             }
         }
         
@@ -119,15 +119,15 @@ public class ClassTranslator {
         }
 
         {
-        	// TODO
-        	
+            // TODO
+            
             List<ConstructorDeclaration> constructors = classDeclaration.getConstructors();
             for (ConstructorDeclaration constructor: constructors) {
                 int parameterCount = constructor.getParameters().size();
                 outputBuilder.append("    // TODO: constructor with " + parameterCount + " parameter(s)\n\n");
             }
             if (!constructors.isEmpty()) {
-            	outputBuilder.append("\n");
+                outputBuilder.append("\n");
             }
         }
 

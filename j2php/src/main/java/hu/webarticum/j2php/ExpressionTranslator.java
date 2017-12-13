@@ -14,6 +14,7 @@ import com.github.javaparser.ast.expr.CastExpr;
 import com.github.javaparser.ast.expr.ConditionalExpr;
 import com.github.javaparser.ast.expr.EnclosedExpr;
 import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.InstanceOfExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.UnaryExpr;
@@ -41,7 +42,7 @@ public class ExpressionTranslator {
         //expression.isArrayCreationExpr();
         //expression.isArrayInitializerExpr();
         //expression.isAssignExpr();
-        expression.isBinaryExpr();
+   /**/ expression.isBinaryExpr();
         //expression.isBooleanLiteralExpr();
         //expression.isCastExpr();
         //expression.isCharLiteralExpr();
@@ -49,20 +50,20 @@ public class ExpressionTranslator {
         //expression.isConditionalExpr();
         //expression.isDoubleLiteralExpr();
         //expression.isEnclosedExpr();
-        expression.isFieldAccessExpr();
+   /**/ expression.isFieldAccessExpr();
         expression.isInstanceOfExpr();
         //expression.isIntegerLiteralExpr();
         expression.isLambdaExpr();
         //expression.isLiteralExpr();
-        expression.isLiteralStringValueExpr();
+        //expression.isLiteralStringValueExpr();
         //expression.isLongLiteralExpr();
         expression.isMarkerAnnotationExpr();
         //expression.isMethodCallExpr();
-        expression.isMethodReferenceExpr();
+   /**/ expression.isMethodReferenceExpr();
         //expression.isNameExpr();
         expression.isNormalAnnotationExpr();
         //expression.isNullLiteralExpr();
-        expression.isObjectCreationExpr();
+   /**/ expression.isObjectCreationExpr();
         expression.isSingleMemberAnnotationExpr();
         //expression.isStringLiteralExpr();
         expression.isSuperExpr();
@@ -267,6 +268,11 @@ public class ExpressionTranslator {
                 }
             }
             outputBuilder.append(")");
+        } else if (expression.isInstanceOfExpr()) {
+            InstanceOfExpr instanceOfExpression = expression.asInstanceOfExpr();
+            new ExpressionTranslator(instanceOfExpression.getExpression(), embeddingContext).toString(outputBuilder);
+            outputBuilder.append(" instanceof ");
+            outputBuilder.append("{{SomeType}}"); // XXX
         } else {
             // TODO
             outputBuilder.append("/** EXPR (" + expression.getClass().getSimpleName() + ") **/");

@@ -52,7 +52,7 @@ public class SampleClass extends SampleAbstractClass implements SampleInterface,
     }
     
     public SampleClass getIncremented() {
-    	return new SampleClass(num1 + 1, num2 + 1);
+        return new SampleClass(num1 + 1, num2 + 1);
     }
     
     public int methodWithComplexBody(int input) {
@@ -116,9 +116,28 @@ public class SampleClass extends SampleAbstractClass implements SampleInterface,
         return result;
     }
     
+    public void throwsMethod() throws IOException {
+        throw new IOException("Oops!");
+    }
+    
     public void testSpecialStatementsAndExpressions() {
         SampleClass sample = new SampleClass(1, 2);
         Object sampleObject = (Object)sample.getIncremented();
+        try {
+            throwsMethod();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            System.out.println("finally...");
+        }
+        if (sampleObject instanceof SampleClass) {
+            System.out.println("IS instance of...");
+        }
+    }
+    
+    public void fooBar() {
+        super.fooBar();
+        System.out.println("Child fooBar()");
     }
     
     public void testArrays() {

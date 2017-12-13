@@ -3,17 +3,26 @@ package hu.webarticum.j2php;
 import java.util.Optional;
 
 import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.BreakStmt;
+import com.github.javaparser.ast.stmt.CatchClause;
+import com.github.javaparser.ast.stmt.ContinueStmt;
 import com.github.javaparser.ast.stmt.DoStmt;
 import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.stmt.ForeachStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.stmt.Statement;
+import com.github.javaparser.ast.stmt.SwitchEntryStmt;
+import com.github.javaparser.ast.stmt.SwitchStmt;
+import com.github.javaparser.ast.stmt.ThrowStmt;
+import com.github.javaparser.ast.stmt.TryStmt;
 import com.github.javaparser.ast.stmt.WhileStmt;
+import com.github.javaparser.ast.type.Type;
 
-// TODO: per block variable postfix
+// TODO: per block variable postfix (necessary? new names are safe!)
 
 public class StatementTranslator {
 
@@ -27,6 +36,27 @@ public class StatementTranslator {
     }
 
     public void toString(StringBuilder outputBuilder) {
+        statement.isAssertStmt();
+        //statement.isBlockStmt();
+        //statement.isBreakStmt();
+        //statement.isContinueStmt();
+        //statement.isDoStmt();
+        //statement.isEmptyStmt();
+        statement.isExplicitConstructorInvocationStmt();
+        //statement.isExpressionStmt();
+        //statement.isForeachStmt();
+        //statement.isForStmt();
+        //statement.isIfStmt();
+        statement.isLabeledStmt();
+        statement.isLocalClassDeclarationStmt();
+        //statement.isReturnStmt();
+        //statement.isSwitchEntryStmt();
+        //statement.isSwitchStmt();
+        statement.isSynchronizedStmt();
+        //statement.isThrowStmt();
+        //statement.isTryStmt();
+        //statement.isWhileStmt();
+        
         if (statement.isEmptyStmt()) {
             outputBuilder.append(";");
         } else if (statement.isBlockStmt()) {
@@ -74,11 +104,47 @@ public class StatementTranslator {
                 new StatementTranslator(elseStatement, embeddingContext).toString(outputBuilder);
             }
             
+        } else if (statement.isBreakStmt()) {
+            BreakStmt breakStatement = statement.asBreakStmt();
+            outputBuilder.append("break");
+            // TODO: breakStatement.getLabel();
+            outputBuilder.append(";");
+        } else if (statement.isContinueStmt()) {
+            ContinueStmt continueStatement = statement.asContinueStmt();
+            outputBuilder.append("continue");
+            // TODO: continueStatement.getLabel();
+            outputBuilder.append(";");
         } else if (statement.isSwitchStmt()) {
+            SwitchStmt switchStatement = statement.asSwitchStmt();
             
-            // TODO
+            outputBuilder.append("switch (");
             
-            outputBuilder.append("switch (@value) {\n" + embeddingContext.indent + "    // TODO\n" + embeddingContext.indent + "}");
+            new ExpressionTranslator(switchStatement.getSelector(), embeddingContext).toString(outputBuilder);
+            
+            outputBuilder.append(") {\n");
+            
+            EmbeddingContext subEmbeddingContext = embeddingContext.moreIndent("    ");
+            EmbeddingContext subSubEmbeddingContext = subEmbeddingContext.moreIndent("    ");
+            
+            for (SwitchEntryStmt switchEntryStatement: switchStatement.getEntries()) {
+                Optional<Expression> labelOptional = switchEntryStatement.getLabel();
+                if (labelOptional.isPresent()) {
+                    Expression labelExpression = labelOptional.get();
+                    outputBuilder.append(subEmbeddingContext.indent + "case ");
+                    new ExpressionTranslator(labelExpression, embeddingContext).toString(outputBuilder);
+                    outputBuilder.append(":\n");
+                } else {
+                    outputBuilder.append(subEmbeddingContext.indent + "default:\n");
+                }
+                
+                for (Statement switchEntrySubStatement: switchEntryStatement.getStatements()) {
+                    outputBuilder.append(subSubEmbeddingContext.indent);
+                    new StatementTranslator(switchEntrySubStatement, subSubEmbeddingContext).toString(outputBuilder);
+                    outputBuilder.append("\n");
+                }
+            }
+            
+            outputBuilder.append(embeddingContext.indent + "}");
         } else if (statement.isWhileStmt()) {
             WhileStmt whileStatement = statement.asWhileStmt();
             
@@ -145,6 +211,39 @@ public class StatementTranslator {
             outputBuilder.append(")");
             
             new StatementTranslator(foreachStatement.getBody(), embeddingContext).toString(outputBuilder);
+        } else if (statement.isTryStmt()) {
+            TryStmt tryStatement = statement.asTryStmt();
+            
+            outputBuilder.append("try ");
+            new StatementTranslator(tryStatement.getTryBlock(), embeddingContext).toString(outputBuilder);
+            
+            for (CatchClause catchClause: tryStatement.getCatchClauses()) {
+                outputBuilder.append(" catch (");
+                Parameter parameter = catchClause.getParameter();
+                
+                Type type = parameter.getType();
+                outputBuilder.append("{{SomeException}}"); // TODO
+                outputBuilder.append(" ");
+                
+                String parameterName = parameter.getNameAsString();
+                outputBuilder.append(parameterName);
+                
+                outputBuilder.append(") ");
+                new StatementTranslator(catchClause.getBody(), embeddingContext).toString(outputBuilder);
+            }
+            
+            Optional<BlockStmt> finallyOptional = tryStatement.getFinallyBlock();
+            if (finallyOptional.isPresent()) {
+                BlockStmt finallyBlock = finallyOptional.get();
+                outputBuilder.append(" finally ");
+                new StatementTranslator(finallyBlock, embeddingContext).toString(outputBuilder);
+            }
+            
+        } else if (statement.isThrowStmt()) {
+            ThrowStmt throwStatement = statement.asThrowStmt();
+            outputBuilder.append("throw ");
+            new ExpressionTranslator(throwStatement.getExpression(), embeddingContext).toString(outputBuilder);
+            outputBuilder.append(";");
         } else if (statement.isReturnStmt()) {
             ReturnStmt returnStatement = statement.asReturnStmt();
             
@@ -160,7 +259,8 @@ public class StatementTranslator {
             
             outputBuilder.append(";");
         } else {
-            outputBuilder.append("// TODO ???");
+            // TODO
+            outputBuilder.append("/** STMT (" + statement.getClass().getSimpleName() + ") **/");
         }
     }
     
