@@ -1,5 +1,7 @@
 package hu.webarticum.j2php;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import com.github.javaparser.ast.ArrayCreationLevel;
@@ -14,9 +16,11 @@ import com.github.javaparser.ast.expr.CastExpr;
 import com.github.javaparser.ast.expr.ConditionalExpr;
 import com.github.javaparser.ast.expr.EnclosedExpr;
 import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.InstanceOfExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.type.PrimitiveType;
@@ -42,7 +46,7 @@ public class ExpressionTranslator {
         //expression.isArrayCreationExpr();
         //expression.isArrayInitializerExpr();
         //expression.isAssignExpr();
-   /**/ expression.isBinaryExpr();
+        //expression.isBinaryExpr();
         //expression.isBooleanLiteralExpr();
         //expression.isCastExpr();
         //expression.isCharLiteralExpr();
@@ -50,8 +54,8 @@ public class ExpressionTranslator {
         //expression.isConditionalExpr();
         //expression.isDoubleLiteralExpr();
         //expression.isEnclosedExpr();
-   /**/ expression.isFieldAccessExpr();
-        expression.isInstanceOfExpr();
+        //expression.isFieldAccessExpr();
+        //expression.isInstanceOfExpr();
         //expression.isIntegerLiteralExpr();
         expression.isLambdaExpr();
         //expression.isLiteralExpr();
@@ -59,15 +63,15 @@ public class ExpressionTranslator {
         //expression.isLongLiteralExpr();
         expression.isMarkerAnnotationExpr();
         //expression.isMethodCallExpr();
-   /**/ expression.isMethodReferenceExpr();
+        expression.isMethodReferenceExpr();
         //expression.isNameExpr();
         expression.isNormalAnnotationExpr();
         //expression.isNullLiteralExpr();
-   /**/ expression.isObjectCreationExpr();
+        //expression.isObjectCreationExpr();
         expression.isSingleMemberAnnotationExpr();
         //expression.isStringLiteralExpr();
-        expression.isSuperExpr();
-        expression.isThisExpr();
+        //expression.isSuperExpr();
+        //expression.isThisExpr();
         expression.isTypeExpr();
         //expression.isUnaryExpr();
         //expression.isVariableDeclarationExpr();
@@ -143,20 +147,22 @@ public class ExpressionTranslator {
             outputBuilder.append(conditionExpression + " ? " + thenExpression + " : " + elseExpression);
         } else if (expression.isNameExpr()) {
             NameExpr nameExpression = expression.asNameExpr();
-            
-            outputBuilder.append("$");
+            String name = nameExpression.getNameAsString();
             
             // XXX incredibly ugly hack
             try {
                 TypeSolver typeSolver = new CombinedTypeSolver();
                 JavaParserFacade facade = JavaParserFacade.get(typeSolver);
                 facade.getSymbolSolver().solveSymbol(nameExpression.getNameAsString(), nameExpression).getCorrespondingDeclaration();
+                outputBuilder.append("$");
             } catch (Exception e) {
-                outputBuilder.append("this->");
+                List<String> exceptionalNames = new ArrayList<String>();
+                if (exceptionalNames.contains(name)) {
+                    outputBuilder.append("$this->");
+                }
             }
             
-            String variableName = nameExpression.getNameAsString(); // XXX
-            outputBuilder.append(variableName);
+            outputBuilder.append(name); // XXX
         } else if (expression.isArrayCreationExpr()) {
             ArrayCreationExpr arrayCreationExpression = expression.asArrayCreationExpr();
             Optional<ArrayInitializerExpr> initializerOptional = arrayCreationExpression.getInitializer();
@@ -239,27 +245,18 @@ public class ExpressionTranslator {
             outputBuilder.append("[");
             new ExpressionTranslator(arrayAccessExpression.getIndex(), embeddingContext).toString(outputBuilder);
             outputBuilder.append("]");
-        } else if (expression.isCastExpr()) {
-            CastExpr castExpression = expression.asCastExpr();
-            Expression subExpression = castExpression.getExpression();
-            new ExpressionTranslator(subExpression, embeddingContext).toString(outputBuilder);
-        } else if (expression.isMethodCallExpr()) {
-            MethodCallExpr methodCallExpression = expression.asMethodCallExpr();
-            Optional<Expression> scopeOptional = methodCallExpression.getScope();
-            if (scopeOptional.isPresent()) {
-                new ExpressionTranslator(scopeOptional.get(), embeddingContext).toString(outputBuilder);
-            } else {
-                
-                // XXX
-                outputBuilder.append("$UNKNOWN");
-                
-            }
-            outputBuilder.append("->"); // XXX static etc...
-            outputBuilder.append(methodCallExpression.getNameAsString());
+        } else if (expression.isObjectCreationExpr()) {
+            ObjectCreationExpr objectCreationExpression = expression.asObjectCreationExpr();
+            
+            outputBuilder.append("new ");
+            
+            objectCreationExpression.getType();
+            outputBuilder.append("{SOME-TYPE}"); // XXX TODO
+            
             outputBuilder.append("(");
             {
                 boolean firstArgument = true;
-                for (Expression argumentExpression: methodCallExpression.getArguments()) {
+                for (Expression argumentExpression: objectCreationExpression.getArguments()) {
                     if (!firstArgument) {
                         outputBuilder.append(", ");
                     }
@@ -268,6 +265,84 @@ public class ExpressionTranslator {
                 }
             }
             outputBuilder.append(")");
+        } else if (expression.isCastExpr()) {
+            CastExpr castExpression = expression.asCastExpr();
+            Expression subExpression = castExpression.getExpression();
+            new ExpressionTranslator(subExpression, embeddingContext).toString(outputBuilder);
+        } else if (expression.isThisExpr()) {
+            outputBuilder.append("$this");
+        } else if (expression.isSuperExpr()) {
+            outputBuilder.append("parent");
+        } else if (expression.isMethodCallExpr()) {
+            MethodCallExpr methodCallExpression = expression.asMethodCallExpr();
+            String methodCallInput = methodCallExpression.toString();
+            
+            // XXX
+            if (methodCallInput.matches("System\\.out\\.print(ln)?\\(.*")) {
+                outputBuilder.append("echo ");
+                NodeList<Expression> arguments = methodCallExpression.getArguments();
+                if (arguments.size() == 1) {
+                    new ExpressionTranslator(arguments.get(0), embeddingContext).toString(outputBuilder);
+                    outputBuilder.append(" . ");
+                }
+                if (methodCallInput.startsWith("System.out.println(")) {
+                    outputBuilder.append("\"\\n\"");
+                }
+            } else {
+                boolean toStatic = false;
+                Optional<Expression> scopeOptional = methodCallExpression.getScope();
+                if (scopeOptional.isPresent()) {
+                    Expression scopeExpression = scopeOptional.get();
+                    
+                    String scopeOutput = new ExpressionTranslator(scopeExpression, embeddingContext).toString();
+                    outputBuilder.append(scopeOutput);
+                    
+                    // XXX
+                    if (
+                        scopeExpression.isSuperExpr() ||
+                        (scopeExpression.isNameExpr() && scopeOutput.matches("\\w+"))
+                    ) {
+                        toStatic = true;
+                    }
+                } else {
+                    
+                    // XXX
+                    outputBuilder.append("$UNKNOWN");
+                    
+                }
+                outputBuilder.append(toStatic ? "::" : "->"); // XXX
+                outputBuilder.append(methodCallExpression.getNameAsString());
+                outputBuilder.append("(");
+                {
+                    boolean firstArgument = true;
+                    for (Expression argumentExpression: methodCallExpression.getArguments()) {
+                        if (!firstArgument) {
+                            outputBuilder.append(", ");
+                        }
+                        new ExpressionTranslator(argumentExpression, embeddingContext).toString(outputBuilder);
+                        firstArgument = false;
+                    }
+                }
+                outputBuilder.append(")");
+            }
+        } else if (expression.isFieldAccessExpr()) {
+            FieldAccessExpr fieldAccessExpression = expression.asFieldAccessExpr();
+            boolean toStatic = false;
+            Expression scopeExpression = fieldAccessExpression.getScope();
+            String scopeOutput = new ExpressionTranslator(scopeExpression, embeddingContext).toString();
+            outputBuilder.append(scopeOutput);
+            
+            // XXX ugly ugly ugly
+            if (
+                scopeExpression.isSuperExpr() ||
+                (scopeExpression.isNameExpr() && scopeOutput.matches("\\w+"))
+            ) {
+                toStatic = true;
+            }
+            
+            String fieldName = fieldAccessExpression.getNameAsString();
+            outputBuilder.append(toStatic ? "::$" : "->");
+            outputBuilder.append(fieldName);
         } else if (expression.isInstanceOfExpr()) {
             InstanceOfExpr instanceOfExpression = expression.asInstanceOfExpr();
             new ExpressionTranslator(instanceOfExpression.getExpression(), embeddingContext).toString(outputBuilder);

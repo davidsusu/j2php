@@ -17,6 +17,7 @@ import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.stmt.SwitchEntryStmt;
 import com.github.javaparser.ast.stmt.SwitchStmt;
+import com.github.javaparser.ast.stmt.SynchronizedStmt;
 import com.github.javaparser.ast.stmt.ThrowStmt;
 import com.github.javaparser.ast.stmt.TryStmt;
 import com.github.javaparser.ast.stmt.WhileStmt;
@@ -36,7 +37,7 @@ public class StatementTranslator {
     }
 
     public void toString(StringBuilder outputBuilder) {
-        statement.isAssertStmt();
+        //statement.isAssertStmt();
         //statement.isBlockStmt();
         //statement.isBreakStmt();
         //statement.isContinueStmt();
@@ -56,8 +57,10 @@ public class StatementTranslator {
         //statement.isThrowStmt();
         //statement.isTryStmt();
         //statement.isWhileStmt();
-        
-        if (statement.isEmptyStmt()) {
+
+        if (statement.isAssertStmt()) {
+            // nothing to do
+        } else if (statement.isEmptyStmt()) {
             outputBuilder.append(";");
         } else if (statement.isBlockStmt()) {
             BlockStmt blockStatement = statement.asBlockStmt();
@@ -74,6 +77,11 @@ public class StatementTranslator {
             }
             
             outputBuilder.append(embeddingContext.indent + "}");
+        } else if (statement.isSynchronizedStmt()) {
+            SynchronizedStmt synchronizedStatement = statement.asSynchronizedStmt();
+            
+            outputBuilder.append("/* synchronized */ ");
+            new StatementTranslator(synchronizedStatement.getBody(), embeddingContext).toString(outputBuilder);
         } else if (statement.isExpressionStmt()) {
             new ExpressionTranslator(
                 statement.asExpressionStmt().getExpression(),

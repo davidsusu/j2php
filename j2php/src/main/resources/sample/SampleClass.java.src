@@ -133,6 +133,9 @@ public class SampleClass extends SampleAbstractClass implements SampleInterface,
         if (sampleObject instanceof SampleClass) {
             System.out.println("IS instance of...");
         }
+        synchronized (sampleObject) {
+            System.out.println("synchronized...");
+        }
     }
     
     public void fooBar() {
