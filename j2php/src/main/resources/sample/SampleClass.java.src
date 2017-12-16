@@ -116,8 +116,8 @@ public class SampleClass extends SampleAbstractClass implements SampleInterface,
         return result;
     }
     
-    public void throwsMethod() throws IOException {
-        throw new IOException("Oops!");
+    public void throwsMethod() throws java.io.IOException {
+        throw new java.io.IOException("Oops!");
     }
     
     public void testSpecialStatementsAndExpressions() {
@@ -125,9 +125,10 @@ public class SampleClass extends SampleAbstractClass implements SampleInterface,
         Object sampleObject = (Object)sample.getIncremented();
         try {
             throwsMethod();
-        } catch (IOException e) {
+        } catch (java.io.IOException e) {
             e.printStackTrace();
         } finally {
+            System.out.print("and... ");
             System.out.println("finally...");
         }
         if (sampleObject instanceof SampleClass) {

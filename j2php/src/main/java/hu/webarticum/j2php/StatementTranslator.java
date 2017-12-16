@@ -13,6 +13,7 @@ import com.github.javaparser.ast.stmt.DoStmt;
 import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.stmt.ForeachStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
+import com.github.javaparser.ast.stmt.LabeledStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.stmt.SwitchEntryStmt;
@@ -51,12 +52,12 @@ public class StatementTranslator {
         //statement.isForeachStmt();
         //statement.isForStmt();
         //statement.isIfStmt();
-        statement.isLabeledStmt();
+        //statement.isLabeledStmt();
         statement.isLocalClassDeclarationStmt();
         //statement.isReturnStmt();
         //statement.isSwitchEntryStmt();
         //statement.isSwitchStmt();
-        statement.isSynchronizedStmt();
+        //statement.isSynchronizedStmt();
         //statement.isThrowStmt();
         //statement.isTryStmt();
         //statement.isWhileStmt();
@@ -85,6 +86,15 @@ public class StatementTranslator {
             
             outputBuilder.append("/* synchronized */ ");
             new StatementTranslator(synchronizedStatement.getBody(), embeddingContext).toString(outputBuilder);
+        } else if (statement.isLabeledStmt()) {
+            
+            // TODO
+            // XXX: break, continue etc.
+            
+            LabeledStmt labeledStatement = statement.asLabeledStmt();
+            
+            outputBuilder.append("/* synchronized */ ");
+            new StatementTranslator(labeledStatement.getStatement(), embeddingContext).toString(outputBuilder);
         } else if (statement.isExpressionStmt()) {
             new ExpressionTranslator(
                 statement.asExpressionStmt().getExpression(),
@@ -232,8 +242,7 @@ public class StatementTranslator {
                 outputBuilder.append(" catch (");
                 Parameter parameter = catchClause.getParameter();
                 
-                Type type = parameter.getType();
-                outputBuilder.append("{{SomeException}}"); // TODO
+                ExpressionTranslator.printType(parameter.getType(), outputBuilder);
                 outputBuilder.append(" ");
                 
                 String parameterName = parameter.getNameAsString();

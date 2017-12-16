@@ -21,6 +21,7 @@ import com.github.javaparser.ast.expr.InstanceOfExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.ast.expr.TypeExpr;
 import com.github.javaparser.ast.expr.UnaryExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.type.PrimitiveType;
@@ -44,6 +45,9 @@ public class ExpressionTranslator {
 
     public void toString(HierarchicalStringBuilder outputBuilder) {
         expression.isAnnotationExpr();
+            expression.isMarkerAnnotationExpr();
+            expression.isNormalAnnotationExpr();
+            expression.isSingleMemberAnnotationExpr();
         //expression.isArrayAccessExpr();
         //expression.isArrayCreationExpr();
         //expression.isArrayInitializerExpr();
@@ -60,21 +64,18 @@ public class ExpressionTranslator {
         //expression.isInstanceOfExpr();
         //expression.isIntegerLiteralExpr();
         expression.isLambdaExpr();
+            expression.isMethodReferenceExpr();
         //expression.isLiteralExpr();
         //expression.isLiteralStringValueExpr();
         //expression.isLongLiteralExpr();
-        expression.isMarkerAnnotationExpr();
         //expression.isMethodCallExpr();
-        expression.isMethodReferenceExpr();
         //expression.isNameExpr();
-        expression.isNormalAnnotationExpr();
         //expression.isNullLiteralExpr();
         //expression.isObjectCreationExpr();
-        expression.isSingleMemberAnnotationExpr();
         //expression.isStringLiteralExpr();
         //expression.isSuperExpr();
         //expression.isThisExpr();
-        expression.isTypeExpr();
+        //expression.isTypeExpr();
         //expression.isUnaryExpr();
         //expression.isVariableDeclarationExpr();
         
@@ -252,8 +253,7 @@ public class ExpressionTranslator {
             
             outputBuilder.append("new ");
             
-            objectCreationExpression.getType();
-            outputBuilder.append("{SOME-TYPE}"); // XXX TODO
+            printType(objectCreationExpression.getType(), outputBuilder);
             
             outputBuilder.append("(");
             {
@@ -271,6 +271,9 @@ public class ExpressionTranslator {
             CastExpr castExpression = expression.asCastExpr();
             Expression subExpression = castExpression.getExpression();
             new ExpressionTranslator(subExpression, embeddingContext).toString(outputBuilder);
+        } else if (expression.isTypeExpr()) {
+            TypeExpr typeExpression = expression.asTypeExpr();
+            printType(typeExpression.getType(), outputBuilder);
         } else if (expression.isThisExpr()) {
             outputBuilder.append("$this");
         } else if (expression.isSuperExpr()) {
@@ -285,10 +288,11 @@ public class ExpressionTranslator {
                 NodeList<Expression> arguments = methodCallExpression.getArguments();
                 if (arguments.size() == 1) {
                     new ExpressionTranslator(arguments.get(0), embeddingContext).toString(outputBuilder);
-                    outputBuilder.append(" . ");
+                } else {
+                    outputBuilder.append("null"); // XXX
                 }
                 if (methodCallInput.startsWith("System.out.println(")) {
-                    outputBuilder.append("\"\\n\"");
+                    outputBuilder.append(" . \"\\n\"");
                 }
             } else {
                 boolean toStatic = false;
@@ -349,12 +353,17 @@ public class ExpressionTranslator {
             InstanceOfExpr instanceOfExpression = expression.asInstanceOfExpr();
             new ExpressionTranslator(instanceOfExpression.getExpression(), embeddingContext).toString(outputBuilder);
             outputBuilder.append(" instanceof ");
-            outputBuilder.append("{{SomeType}}"); // XXX
+            printType(instanceOfExpression.getType(), outputBuilder);
         } else {
             // TODO
             outputBuilder.append("/** EXPR (" + expression.getClass().getSimpleName() + ") **/");
         }
         
+    }
+    
+    public static void printType(Type type, HierarchicalStringBuilder outputBuilder) {
+        String translatedType = type.asString().replaceAll("\\.", "\\\\");
+        outputBuilder.append(translatedType);
     }
     
     @Override
