@@ -25,7 +25,8 @@ import com.github.javaparser.ast.type.Type;
 
 import hu.webarticum.j2php.util.HierarchicalStringBuilder;
 
-// TODO: per block variable postfix (necessary? new names are safe!)
+// TODO: per block variable postfix
+//    (necessary? new names are safe! however: shared variables (eg closure))
 
 public class StatementTranslator {
 
