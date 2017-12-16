@@ -29,6 +29,8 @@ import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 
+import hu.webarticum.j2php.util.HierarchicalStringBuilder;
+
 public class ExpressionTranslator {
     
     private final Expression expression;
@@ -40,7 +42,7 @@ public class ExpressionTranslator {
         this.embeddingContext = embeddingContext;
     }
 
-    public void toString(StringBuilder outputBuilder) {
+    public void toString(HierarchicalStringBuilder outputBuilder) {
         expression.isAnnotationExpr();
         //expression.isArrayAccessExpr();
         //expression.isArrayCreationExpr();
@@ -357,7 +359,7 @@ public class ExpressionTranslator {
     
     @Override
     public String toString() {
-        StringBuilder resultBuilder = new StringBuilder();
+        HierarchicalStringBuilder resultBuilder = new HierarchicalStringBuilder();
         toString(resultBuilder);
         return resultBuilder.toString();
     }

@@ -8,6 +8,8 @@ import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 
+import hu.webarticum.j2php.util.HierarchicalStringBuilder;
+
 public class UnitTranslator {
 
     private final Unit unit;
@@ -38,7 +40,7 @@ public class UnitTranslator {
     public String toString() {
         CompilationUnit compilationUnit = unit.getCompilationUnit();
         
-        StringBuilder resultBuilder = new StringBuilder();
+        HierarchicalStringBuilder resultBuilder = new HierarchicalStringBuilder();
 
         resultBuilder.append("<?php\n\n");
         

@@ -4,6 +4,8 @@ import com.github.javaparser.ast.expr.LiteralExpr;
 import com.github.javaparser.ast.expr.LiteralStringValueExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 
+import hu.webarticum.j2php.util.HierarchicalStringBuilder;
+
 public class LiteralTranslator {
     
     private final LiteralExpr literalExpression;
@@ -16,7 +18,7 @@ public class LiteralTranslator {
         this.embeddingContext = embeddingContext;
     }
 
-    public void toString(StringBuilder outputBuilder) {
+    public void toString(HierarchicalStringBuilder outputBuilder) {
         if (literalExpression.isStringLiteralExpr()) {
             StringLiteralExpr stringLiteral = literalExpression.asStringLiteralExpr();
             outputBuilder.append("'" + stringLiteral.asString().replaceAll("\\\\|'", "\\\\$0").replaceAll("\\r\\n?|\\n", "' + \"\\\\n\" + '") + "'");
@@ -30,7 +32,7 @@ public class LiteralTranslator {
     
     @Override
     public String toString() {
-        StringBuilder resultBuilder = new StringBuilder();
+        HierarchicalStringBuilder resultBuilder = new HierarchicalStringBuilder();
         toString(resultBuilder);
         return resultBuilder.toString();
     }

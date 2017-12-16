@@ -23,6 +23,8 @@ import com.github.javaparser.ast.stmt.TryStmt;
 import com.github.javaparser.ast.stmt.WhileStmt;
 import com.github.javaparser.ast.type.Type;
 
+import hu.webarticum.j2php.util.HierarchicalStringBuilder;
+
 // TODO: per block variable postfix (necessary? new names are safe!)
 
 public class StatementTranslator {
@@ -36,7 +38,7 @@ public class StatementTranslator {
         this.embeddingContext = embeddingContext;
     }
 
-    public void toString(StringBuilder outputBuilder) {
+    public void toString(HierarchicalStringBuilder outputBuilder) {
         //statement.isAssertStmt();
         //statement.isBlockStmt();
         //statement.isBreakStmt();
@@ -274,7 +276,7 @@ public class StatementTranslator {
     
     @Override
     public String toString() {
-        StringBuilder resultBuilder = new StringBuilder();
+        HierarchicalStringBuilder resultBuilder = new HierarchicalStringBuilder();
         toString(resultBuilder);
         return resultBuilder.toString();
     }

@@ -8,6 +8,8 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.stmt.BlockStmt;
 
+import hu.webarticum.j2php.util.HierarchicalStringBuilder;
+
 public class MethodTranslator {
 
     private MethodDeclaration methodDeclaration;
@@ -19,7 +21,7 @@ public class MethodTranslator {
         this.embeddingContext = embeddingContext;
     }
 
-    public void toString(StringBuilder outputBuilder) {
+    public void toString(HierarchicalStringBuilder outputBuilder) {
         ClassOrInterfaceDeclaration containerClassDeclaration = (ClassOrInterfaceDeclaration)methodDeclaration.getParentNode().get();
         
         if (methodDeclaration.isPrivate()) {
@@ -63,7 +65,7 @@ public class MethodTranslator {
     
     @Override
     public String toString() {
-        StringBuilder resultBuilder = new StringBuilder();
+        HierarchicalStringBuilder resultBuilder = new HierarchicalStringBuilder();
         toString(resultBuilder);
         return resultBuilder.toString();
     }

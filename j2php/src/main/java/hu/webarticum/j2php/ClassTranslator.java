@@ -15,6 +15,8 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 
+import hu.webarticum.j2php.util.HierarchicalStringBuilder;
+
 public class ClassTranslator {
 
     private final ClassOrInterfaceDeclaration classDeclaration;
@@ -26,7 +28,7 @@ public class ClassTranslator {
         this.embeddingContext = embeddingContext;
     }
     
-    public void toString(StringBuilder outputBuilder) {
+    public void toString(HierarchicalStringBuilder outputBuilder) {
         if (classDeclaration.isInterface()) {
             outputBuilder.append("interface ");
         } else {
@@ -155,7 +157,7 @@ public class ClassTranslator {
     
     @Override
     public String toString() {
-        StringBuilder resultBuilder = new StringBuilder();
+        HierarchicalStringBuilder resultBuilder = new HierarchicalStringBuilder();
         toString(resultBuilder);
         return resultBuilder.toString();
     }
