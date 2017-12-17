@@ -10,10 +10,10 @@ public class HierarchicalStringBuilder implements Appendable {
     
     private StringBuilder currentStringBuilder = new StringBuilder();
 
-    public HierarchicalStringBuilder insertSub() {
-        Entry newEntry = new Entry();
+    public void insertSubContent(Object subContent) {
+        Entry newEntry = new Entry(currentStringBuilder, subContent);
         entries.add(newEntry);
-        return newEntry.subBuilder;
+        currentStringBuilder = new StringBuilder();
     }
 
     public Appendable append(boolean b) {
@@ -76,24 +76,36 @@ public class HierarchicalStringBuilder implements Appendable {
 
     public void appendTo(Appendable appendable) throws IOException {
         for (Entry entry: entries) {
-            appendable.append(entry.inlineBuilder.toString());
-            entry.subBuilder.appendTo(appendable);
+            appendable.append(entry.stringBuilder.toString());
+            if (entry.subContent instanceof HierarchicalStringBuilder) {
+                ((HierarchicalStringBuilder)entry.subContent).appendTo(appendable);
+            } else {
+                appendable.append(String.valueOf(entry.subContent));
+            }
         }
         appendable.append(currentStringBuilder.toString());
     }
 
     public void appendTo(StringBuilder stringBuilder) {
         for (Entry entry: entries) {
-            stringBuilder.append(entry.inlineBuilder.toString());
-            entry.subBuilder.appendTo(stringBuilder);
+            stringBuilder.append(entry.stringBuilder.toString());
+            if (entry.subContent instanceof HierarchicalStringBuilder) {
+                ((HierarchicalStringBuilder)entry.subContent).appendTo(stringBuilder);
+            } else {
+                stringBuilder.append(entry.subContent);
+            }
         }
         stringBuilder.append(currentStringBuilder.toString());
     }
 
     public void appendTo(HierarchicalStringBuilder hierarchicalStringBuilder) {
         for (Entry entry: entries) {
-            hierarchicalStringBuilder.append(entry.inlineBuilder.toString());
-            entry.subBuilder.appendTo(hierarchicalStringBuilder);
+            hierarchicalStringBuilder.append(entry.stringBuilder.toString());
+            if (entry.subContent instanceof HierarchicalStringBuilder) {
+                ((HierarchicalStringBuilder)entry.subContent).appendTo(hierarchicalStringBuilder);
+            } else {
+                hierarchicalStringBuilder.append(entry.subContent);
+            }
         }
         hierarchicalStringBuilder.append(currentStringBuilder.toString());
     }
@@ -107,9 +119,14 @@ public class HierarchicalStringBuilder implements Appendable {
     
     private class Entry {
         
-        StringBuilder inlineBuilder = new StringBuilder();
+        final StringBuilder stringBuilder;
         
-        HierarchicalStringBuilder subBuilder = new HierarchicalStringBuilder();
+        final Object subContent;
+        
+        Entry(StringBuilder stringBuilder, Object subContent) {
+            this.stringBuilder = stringBuilder;
+            this.subContent = subContent;
+        }
         
     }
 
