@@ -20,4 +20,12 @@ public abstract class SampleAbstractClass {
     
     public abstract void virtualHello(String name);
     
+    protected class ParentInnerClass {
+        
+        public void foo() {
+            System.out.println("FOO");
+        }
+        
+    }
+    
 }

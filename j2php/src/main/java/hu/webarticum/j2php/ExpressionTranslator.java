@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.github.javaparser.ast.ArrayCreationLevel;
 import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.ArrayAccessExpr;
 import com.github.javaparser.ast.expr.ArrayCreationExpr;
@@ -13,6 +14,7 @@ import com.github.javaparser.ast.expr.ArrayInitializerExpr;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.CastExpr;
+import com.github.javaparser.ast.expr.ClassExpr;
 import com.github.javaparser.ast.expr.ConditionalExpr;
 import com.github.javaparser.ast.expr.EnclosedExpr;
 import com.github.javaparser.ast.expr.Expression;
@@ -250,10 +252,15 @@ public class ExpressionTranslator {
             outputBuilder.append("]");
         } else if (expression.isObjectCreationExpr()) {
             ObjectCreationExpr objectCreationExpression = expression.asObjectCreationExpr();
+            Optional<NodeList<BodyDeclaration<?>>> classBodyOptional = objectCreationExpression.getAnonymousClassBody();
             
             outputBuilder.append("new ");
             
-            printType(objectCreationExpression.getType(), outputBuilder);
+            if (classBodyOptional.isPresent()) {
+                outputBuilder.append("class");
+            } else {
+                printType(objectCreationExpression.getType(), outputBuilder);
+            }
             
             outputBuilder.append("(");
             {
@@ -267,6 +274,15 @@ public class ExpressionTranslator {
                 }
             }
             outputBuilder.append(")");
+            
+            if (classBodyOptional.isPresent()) {
+                
+                // TODO
+                
+                outputBuilder.append(" extends "); // XXX or implements
+                printType(objectCreationExpression.getType(), outputBuilder);
+                outputBuilder.append(" {\n\n" + embeddingContext.indent + "    // TODO: some body...\n\n" + embeddingContext.indent + "}");
+            }
         } else if (expression.isCastExpr()) {
             CastExpr castExpression = expression.asCastExpr();
             Expression subExpression = castExpression.getExpression();

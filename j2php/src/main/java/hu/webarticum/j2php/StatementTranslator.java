@@ -14,6 +14,7 @@ import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.stmt.ForeachStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.stmt.LabeledStmt;
+import com.github.javaparser.ast.stmt.LocalClassDeclarationStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.stmt.SwitchEntryStmt;
@@ -278,6 +279,16 @@ public class StatementTranslator {
             }
             
             outputBuilder.append(";");
+        } else if (statement.isLocalClassDeclarationStmt()) {
+            LocalClassDeclarationStmt localClassDeclarationStatement = statement.asLocalClassDeclarationStmt();
+            
+            // TODO
+            
+            outputBuilder.append("$SOME_FACTORY = function () {\n");
+            outputBuilder.append(embeddingContext.indent + "    // TODO\n");
+            outputBuilder.append(embeddingContext.indent + "    var_dump(func_get_args());\n");
+            outputBuilder.append(embeddingContext.indent + "    return new class() {};\n");
+            outputBuilder.append(embeddingContext.indent + "}");
         } else {
             // TODO
             outputBuilder.append("/** STMT (" + statement.getClass().getSimpleName() + ") **/");

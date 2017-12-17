@@ -137,6 +137,39 @@ public class SampleClass extends SampleAbstractClass implements SampleInterface,
         synchronized (sampleObject) {
             System.out.println("synchronized...");
         }
+        
+        Runnable runnable0;
+        {
+	        final int x = 0;
+	        class InlineType implements java.lang.Runnable {
+	        	
+	        	@Override
+	        	public void run() {
+	        	    System.out.println("InlineType.run / " + (++x));
+	        	}
+	        	
+	        }
+	        InlineType inlineClass = new InlineType();
+	        inlineClass.run();
+	        inlineClass.run();
+	        runnable0 = inlineClass;
+        }
+        
+        {
+	        final int x = 0;
+	        Runnable runnable = new java.lang.Runnable() {
+	        	
+	        	@Override
+	        	public void run() {
+	        	    System.out.println("Runnable.run / " + (++x));
+	        	}
+	        	
+	        };
+	        runnable.run();
+	        runnable.run();
+        }
+        runnable0.run();
+        runnable0.run();
     }
     
     public void fooBar() {
