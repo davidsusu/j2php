@@ -54,7 +54,7 @@ public class StatementTranslator {
         //statement.isForStmt();
         //statement.isIfStmt();
         //statement.isLabeledStmt();
-        statement.isLocalClassDeclarationStmt();
+        //statement.isLocalClassDeclarationStmt();
         //statement.isReturnStmt();
         //statement.isSwitchEntryStmt();
         //statement.isSwitchStmt();
