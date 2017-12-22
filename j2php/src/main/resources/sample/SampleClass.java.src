@@ -172,6 +172,17 @@ public class SampleClass extends SampleAbstractClass implements SampleInterface,
         runnable0.run();
     }
     
+    public void testTrickyCode() {
+        // cited from https://stackoverflow.com/a/3866219/3948862
+        if (false == true) { // these characters are magic: \u000a\u007d\u007b
+            System.out.println("false is true!");
+        }
+        
+        \u007b
+            System.out.println("this is a block!");
+        }
+    }
+    
     public void fooBar() {
         super.fooBar();
         System.out.println("Child fooBar()");
